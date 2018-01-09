@@ -337,7 +337,20 @@ int CGXCommunication::Read(unsigned char eop, CGXByteBuffer& reply)
     } while (!bFound);
     return DLMS_ERROR_CODE_OK;
 }
-
+#ifdef __linux__
+enum parity {
+	NOPARITY,
+	ODDPARITY,
+	EVENPARITY,
+	MARKPARITY,
+	SPACEPARITY,
+};
+enum stopbits {
+	ONESTOPBIT,
+	ONE5STOPBITS,
+	TWOSTOPBITS
+};
+#endif
 //Open serial port.
 int CGXCommunication::Open(const char* settings, bool iec, int maxBaudrate)
 {
@@ -445,7 +458,7 @@ int CGXCommunication::Open(const char* settings, bool iec, int maxBaudrate)
 #else //#if defined(__LINUX__)
     struct termios options;
     // read/write | not controlling term | don't wait for DCD line signal.
-    m_hComPort = open(port, O_RDWR | O_NOCTTY | O_NONBLOCK);
+    m_hComPort = open(port.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
     if (m_hComPort == -1) // if open is unsuccessful.
     {
         printf("Failed to Open port.\r");
